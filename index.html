@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Loading Form...</title>
+</head>
+<body>
+    <p>Please allow location access to load the form...</p>
+
+    <script>
+        // 1. Replace the text below with your actual Smartsheet Form URL
+        const smartsheetBaseUrl = "https://smartsheet.com";
+
+        // 2. Ask the phone for GPS coordinates
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(redirectToSmartsheet, handleError);
+        } else {
+            alert("Geolocation is not supported by this browser. Loading standard form.");
+            window.location.href = smartsheetBaseUrl;
+        }
+
+        function redirectToSmartsheet(position) {
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+            const gpsValue = lat + "," + lon;
+
+            // 3. This matches your exact Smartsheet field name: "Location (if required)"
+            const finalUrl = smartsheetBaseUrl + "?Location (if required)=" + encodeURIComponent(gpsValue);
+
+            // 4. Redirect the phone user to the filled form
+            window.location.href = finalUrl;
+        }
+
+        function handleError(error) {
+            alert("Location permission denied. Loading standard form without GPS.");
+            window.location.href = smartsheetBaseUrl;
+        }
+    </script>
+</body>
+</html>
