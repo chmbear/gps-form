@@ -4,37 +4,34 @@
     <title>Verify Location</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; padding: 15px; background-color: #f8f9fa; color: #333; margin: 0; }
-        .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); max-width: 420px; margin: 10px auto; box-sizing: border-box; }
-        .btn { display: inline-block; width: 100%; padding: 14px; margin: 15px 0 5px 0; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 16px; border: none; cursor: pointer; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; background-color: #f8f9fa; color: #333; margin: 0; }
+        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); max-width: 400px; margin: 20px auto; box-sizing: border-box; }
+        .btn { display: block; width: 100%; padding: 15px; margin: 15px 0; color: white; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 16px; border: none; cursor: pointer; box-sizing: border-box; text-align: center; }
+        .blue { background-color: #1a73e8; }
         .green { background-color: #28a745; }
-        #gpsDisplay { font-size: 15px; margin-bottom: 15px; font-weight: bold; background: #e8f0fe; padding: 10px; border-radius: 5px; }
-        .map-container { width: 100%; height: 250px; border-radius: 8px; overflow: hidden; border: 1px solid #ccc; margin-top: 10px; display: none; }
-        iframe { width: 100%; height: 100%; border: none; }
-        ol { text-align: left; padding-left: 20px; font-size: 14px; line-height: 1.6; color: #555; }
+        #gpsDisplay { font-size: 16px; margin: 15px 0; font-weight: bold; background: #e8f0fe; padding: 12px; border-radius: 6px; word-break: break-all; }
+        ol { text-align: left; padding-left: 20px; font-size: 14px; line-height: 1.6; color: #555; margin-bottom: 20px; }
     </style>
 </head>
 <body>
 
 <div class="card">
     <h2>Location Verification</h2>
-    <p style="font-size: 14px; margin-top: -5px;">Please allow location access if prompted.</p>
+    <p style="font-size: 14px; margin-top: -5px; color: #666;">Please allow location access if prompted.</p>
     
     <div id="gpsDisplay">Fetching GPS Coordinates...</div>
 
     <ol>
-        <li>Look at the map below to confirm your current location.</li>
-        <li>Click the green button to open your Smartsheet form.</li>
-        <li>Your GPS coordinates will fill in automatically!</li>
+        <li>Click the <strong>Blue Button</strong> to view your current street name on Google Maps.</li>
+        <li>Switch back to this webpage tab.</li>
+        <li>Click the <strong>Green Button</strong> to fill out your form.</li>
     </ol>
 
-    <!-- The Embedded OpenStreetMap Component -->
-    <div id="mapBox" class="map-container">
-        <iframe id="mapFrame" src=""></iframe>
-    </div>
+    <!-- Unblockable Google Maps Browser Link -->
+    <a id="mapsBtn" class="btn blue" style="display:none;" target="_blank">1. Check Street on Google Maps</a>
 
     <!-- Direct Continue Button -->
-    <a id="smartsheetBtn" class="btn green" style="display:none;">Continue to Smartsheet Form</a>
+    <a id="smartsheetBtn" class="btn green" style="display:none;">2. Continue to Smartsheet Form</a>
 </div>
 
 <script>
@@ -42,46 +39,36 @@
     const smartsheetBaseUrl = "https://app.smartsheet.au/b/form/019f91824c207076a45dae8fff91f5b2";
 
     if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(embedMapAndPrepareForm, handleError);
+        navigator.geolocation.getCurrentPosition(setupLinks, handleError);
     } else {
         document.getElementById("gpsDisplay").innerText = "GPS is not supported by this browser.";
     }
 
-    function embedMapAndPrepareForm(position) {
+    function setupLinks(position) {
         const lat = position.coords.latitude;
         const lon = position.coords.longitude;
         const gpsValue = lat + "," + lon;
 
         document.getElementById("gpsDisplay").innerText = "Captured GPS: " + gpsValue;
 
-        // Uses OpenStreetMap which allows embedding on mobile devices without blocks
-        // bbox calculations create a small frame centered perfectly on the user's location
-        const offset = 0.005; 
-        const minLon = lon - offset;
-        const minLat = lat - offset;
-        const maxLon = lon + offset;
-        const maxLat = lat + offset;
-        
-        const embedUrl = "https://openstreetmap.org" + minLon + "%2C" + minLat + "%2C" + maxLon + "%2C" + maxLat + "&layer=mapnik&marker=" + lat + "%2C" + lon;
-        
-        const mapBox = document.getElementById("mapBox");
-        const mapFrame = document.getElementById("mapFrame");
-        
-        mapFrame.src = embedUrl;
-        mapBox.style.display = "block"; // Show the map layout
+        // Uses a standard web URL format instead of an app trigger to bypass mobile phone blocks
+        const googleMapsWebUrl = "https://google.com" + lat + "," + lon + "&z=16";
+        const mapsBtn = document.getElementById("mapsBtn");
+        mapsBtn.href = googleMapsWebUrl;
+        mapsBtn.style.display = "block";
 
         // Generate the Smartsheet pre-filled link
         const finalSmartsheetUrl = smartsheetBaseUrl + "?Location%20(if%20required)=" + encodeURIComponent(gpsValue);
         const smartsheetBtn = document.getElementById("smartsheetBtn");
         smartsheetBtn.href = finalSmartsheetUrl;
-        smartsheetBtn.style.display = "inline-block";
+        smartsheetBtn.style.display = "block";
     }
 
     function handleError(error) {
         document.getElementById("gpsDisplay").innerText = "Location access denied. Please proceed to the blank form.";
         const smartsheetBtn = document.getElementById("smartsheetBtn");
         smartsheetBtn.href = smartsheetBaseUrl;
-        smartsheetBtn.style.display = "inline-block";
+        smartsheetBtn.style.display = "block";
     }
 </script>
 
