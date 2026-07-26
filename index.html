@@ -1,39 +1,76 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Loading Form...</title>
+    <title>Verify Location</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; background-color: #f8f9fa; color: #333; }
+        .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); max-width: 400px; margin: 0 auto; }
+        .btn { display: inline-block; width: 90%; padding: 14px; margin: 10px 0; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 16px; border: none; cursor: pointer; }
+        .blue { background-color: #1a73e8; }
+        .green { background-color: #28a745; }
+        .steps { text-align: left; padding: 0 15px; font-size: 14px; line-height: 1.5; color: #555; }
+        #gpsDisplay { font-size: 16px; margin: 15px 0; font-weight: bold; background: #e8f0fe; padding: 10px; border-radius: 5px; word-break: break-all; }
+    </style>
 </head>
 <body>
-    <p>Please allow location access to load the form...</p>
 
-    <script>
-        // 1. PASTE YOUR ACTUAL FORM LINK BETWEEN THE QUOTES BELOW
-        const smartsheetBaseUrl = "https://app.smartsheet.au/b/form/019f91824c207076a45dae8fff91f5b2";
+<div class="card">
+    <h2>Location Verification</h2>
+    <p>Allow location access to generate your links.</p>
+    
+    <div id="gpsDisplay">Fetching GPS Coordinates...</div>
 
-        // 2. Request phone GPS coordinates
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(redirectToSmartsheet, handleError);
-        } else {
-            alert("Geolocation not supported. Loading standard form.");
-            window.location.href = smartsheetBaseUrl;
-        }
+    <div class="steps">
+        <p><strong>Step 1:</strong> Click the blue button to view your street name on Google Maps.</p>
+        <p><strong>Step 2:</strong> Press and hold on the address in Google Maps to <strong>Copy</strong> it.</p>
+        <p><strong>Step 3:</strong> Come back here and click the green button to open the form.</p>
+    </div>
 
-        function redirectToSmartsheet(position) {
-            const lat = position.coords.latitude;
-            const lon = position.coords.longitude;
-            const gpsValue = lat + "," + lon;
+    <!-- Button 1: Opens Google Maps link -->
+    <a id="mapsBtn" class="btn blue" style="display:none;" target="_blank">1. Open Google Maps & Copy Address</a>
 
-            // 3. This builds the exact URL parameter structure Smartsheet expects
-            const finalUrl = smartsheetBaseUrl + "?Location%20(if%20required)=" + encodeURIComponent(gpsValue);
+    <!-- Button 2: Continues to Smartsheet -->
+    <a id="smartsheetBtn" class="btn green" style="display:none;">2. Continue to Smartsheet Form</a>
+</div>
 
-            // 4. Send the user to the completed form
-            window.location.href = finalUrl;
-        }
+<script>
+    // 1. PASTE YOUR ACTUAL FORM LINK BETWEEN THE QUOTES BELOW
+    const smartsheetBaseUrl = "https://app.smartsheet.au/b/form/019f91824c207076a45dae8fff91f5b2";
 
-        function handleError(error) {
-            alert("Location access denied. Loading blank form.");
-            window.location.href = smartsheetBaseUrl;
-        }
-    </script>
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(setupLinks, handleError);
+    } else {
+        document.getElementById("gpsDisplay").innerText = "GPS is not supported by this browser.";
+    }
+
+    function setupLinks(position) {
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+        const gpsValue = lat + "," + lon;
+
+        document.getElementById("gpsDisplay").innerText = "Captured GPS: " + gpsValue;
+
+        // Generate the custom Google Maps search link for verification
+        const googleMapsUrl = "https://google.com" + gpsValue;
+        const mapsBtn = document.getElementById("mapsBtn");
+        mapsBtn.href = googleMapsUrl;
+        mapsBtn.style.display = "inline-block";
+
+        // Generate the Smartsheet pre-filled link
+        const finalSmartsheetUrl = smartsheetBaseUrl + "?Location%20(if%20required)=" + encodeURIComponent(gpsValue);
+        const smartsheetBtn = document.getElementById("smartsheetBtn");
+        smartsheetBtn.href = finalSmartsheetUrl;
+        smartsheetBtn.style.display = "inline-block";
+    }
+
+    function handleError(error) {
+        document.getElementById("gpsDisplay").innerText = "Location access denied. Please proceed to the blank form.";
+        const smartsheetBtn = document.getElementById("smartsheetBtn");
+        smartsheetBtn.href = smartsheetBaseUrl;
+        smartsheetBtn.style.display = "inline-block";
+    }
+</script>
+
 </body>
 </html>
