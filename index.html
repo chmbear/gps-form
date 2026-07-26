@@ -23,8 +23,8 @@
             const lon = position.coords.longitude;
             const gpsValue = lat + "," + lon;
 
-            // 3. This matches your exact Smartsheet field name: "Location (if required)"
-            const finalUrl = smartsheetBaseUrl + "?Location (if required)=" + encodeURIComponent(gpsValue);
+            // This translates "Location (if required)" into safe web code so Smartsheet recognizes it perfectly
+const finalUrl = smartsheetBaseUrl + "?Location%20%28if%20required%29=" + encodeURIComponent(gpsValue);
 
             // 4. Redirect the phone user to the filled form
             window.location.href = finalUrl;
