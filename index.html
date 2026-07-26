@@ -52,7 +52,7 @@
         document.getElementById("gpsDisplay").innerText = "Captured GPS: " + gpsValue;
 
         // Uses a standard web URL format instead of an app trigger to bypass mobile phone blocks
-        const googleMapsWebUrl = "https://google.com" + lat + "," + lon + "&z=16";
+        const googleMapsWebUrl = "https://google.com/maps/place/" + lat + "," + lon + "&z=16";
         const mapsBtn = document.getElementById("mapsBtn");
         mapsBtn.href = googleMapsWebUrl;
         mapsBtn.style.display = "block";
